@@ -1,0 +1,3 @@
+C:/Users/ajg/Projects/ps1-project/build/CMakeFiles/SDL2_OpenGL_Triangle.dir
+C:/Users/ajg/Projects/ps1-project/build/CMakeFiles/edit_cache.dir
+C:/Users/ajg/Projects/ps1-project/build/CMakeFiles/rebuild_cache.dir
