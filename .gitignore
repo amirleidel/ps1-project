@@ -1,0 +1,10 @@
+# Ignore build folder
+build/
+
+# Common ignores
+*.o
+*.obj
+*.exe
+*.dll
+*.log
+*.tmp
