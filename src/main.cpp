@@ -5,25 +5,30 @@
 #include <GL/glew.h>
 #include <iostream>
 
-const char* vertexShaderSource = R"(
-#version 330 core
-layout (location = 0) in vec3 aPos;
+// file loading into string for shader compilation
+#include <fstream>
+#include <sstream>
+#include <string>
 
-void main()
-{
-    gl_Position = vec4(aPos, 1.0);
+std::string loadFile(const std::string& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << path << std::endl;
+        return "";
+    }
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
 }
-)";
 
-const char* fragmentShaderSource = R"(
-#version 330 core
-out vec4 FragColor;
 
-void main()
-{
-    FragColor = vec4(1.0, 0.5, 0.2, 1.0);
-}
-)";
+// Load shader code from files
+std::string vertexCode = loadFile("shaders/vertex_shader.glsl");
+std::string fragmentCode = loadFile("shaders/fragment_shader.glsl");
+
+// Convert to C-style strings for OpenGL
+const char* vertexShaderSource = vertexCode.c_str();
+const char* fragmentShaderSource = fragmentCode.c_str();
 
 GLuint createShader(GLenum type, const char* src) {
     GLuint shader = glCreateShader(type);

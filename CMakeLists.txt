@@ -21,6 +21,8 @@ link_directories(
 # --- Find OpenGL (system) ---
 find_package(OpenGL REQUIRED)
 
+
+
 # --- Executable ---
 add_executable(${PROJECT_NAME}
     src/main.cpp
@@ -33,4 +35,17 @@ target_link_libraries(${PROJECT_NAME}
     SDL2main
     SDL2
     glew32
+)
+
+# --- Copy shaders and DLLs after build ---
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    # Copy the shaders folder
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/shaders
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders
+    # Copy SDL2.dll and glew32.dll
+    COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/SDL2.dll
+            ${CMAKE_SOURCE_DIR}/glew32.dll
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>
 )
