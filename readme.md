@@ -83,3 +83,4 @@ project/
     - If your program prints `glGetString(GL_VERSION)` after `glewInit()`, you’ll see your driver’s OpenGL version (e.g. `4.6.0 NVIDIA` ...). If it’s `>= 3.3` you’re set.
 
     
+<a href="https://creativecommons.org">ps1-project</a> © 2025 by <a href="https://creativecommons.org">Amir J. G. Leidel</a> is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
