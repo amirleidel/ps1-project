@@ -5,21 +5,8 @@
 #include <GL/glew.h>
 #include <iostream>
 
-// file loading into string for shader compilation
-#include <fstream>
-#include <sstream>
-#include <string>
-
-std::string loadFile(const std::string& path) {
-    std::ifstream file(path);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << path << std::endl;
-        return "";
-    }
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
+#include "fileloader.hpp" // loadFile to string implementation
+#include "obj_loader.hpp"
 
 
 // Load shader code from files
@@ -95,7 +82,17 @@ int main() {
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    
+    
+    // obj import test
+    
+    Mesh mesh = LoadOBJ("assets/cube.obj");
 
+    std::cout << "Positions: " << mesh.positions.size() << "\n";
+    std::cout << "Texcoords: " << mesh.texcoords.size() << "\n";
+    std::cout << "Normals:   " << mesh.normals.size() << "\n";
+    std::cout << "Indices:   " << mesh.indices.size() << "\n";
+    
     // Render loop
     bool running = true;
     SDL_Event event;

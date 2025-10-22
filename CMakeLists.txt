@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SDL2_DIR "C:/SDL2/x86_64-w64-mingw32")
 set(GLEW_DIR "C:/GLEW/glew-2.1.0")
 
+
 # --- Include and library directories ---
 include_directories(
     ${SDL2_DIR}/include
@@ -18,10 +19,12 @@ link_directories(
     ${GLEW_DIR}/lib/Release/x64
 )
 
+include_directories(${PROJECT_NAME} 
+    libs
+)
+
 # --- Find OpenGL (system) ---
 find_package(OpenGL REQUIRED)
-
-
 
 # --- Executable ---
 add_executable(${PROJECT_NAME}
@@ -43,6 +46,10 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_SOURCE_DIR}/shaders
             $<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders
+    # Copy the assets folder
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
     # Copy SDL2.dll and glew32.dll
     COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_SOURCE_DIR}/SDL2.dll
