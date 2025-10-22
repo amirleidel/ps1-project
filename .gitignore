@@ -3,7 +3,6 @@ build/
 
 # Common ignores
 *.o
-*.obj
 *.exe
 *.dll
 *.log
