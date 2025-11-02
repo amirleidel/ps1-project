@@ -134,13 +134,13 @@ Mesh LoadOBJ(const std::string& path)
         }
     }
     
-    std::cout << "Loaded OBJ: " << path << "\n";
+    /*std::cout << "Loaded OBJ: " << path << "\n";
     std::cout << "  Vertices #: " << mesh.positions.size() << "\n";
     for (int i=0; i < mesh.positions.size(); i++) {
         std::cout << mesh.positions[i] << "\n";}
     std::cout << "  Indices #:  " << mesh.indices.size() << "\n";
     for (int i=0; i < mesh.indices.size(); i++) {
         std::cout << mesh.indices[i] << "\n";}
-        
+        */
     return mesh;
 }
