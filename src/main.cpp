@@ -76,23 +76,40 @@ int main() {
     
     //std::vector<Material> materials = LoadMTL("assets/cube.mtl"); this is done in obj loader
     
-    glBindTexture(GL_TEXTURE_2D, mesh.diffuseTex);
+    // mesh.positions holds vertices of model
+    // mesh.diffuseTex holds the gl texture
+    // mesh.texcoords the vec2 texture coords
     
+    // LoadOBJ already binds texture
     
     // Create VAO and VBO for mesh
-    GLuint VBO, VAO;
+    GLuint VBO_positions, VBO_texcoords, VAO;
     glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &VBO_positions);
+    glGenBuffers(1, &VBO_texcoords);
+
     glBindVertexArray(VAO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // --- Positions ---
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
     glBufferData(GL_ARRAY_BUFFER,
                  mesh.positions.size() * sizeof(glm::vec3),
                  mesh.positions.data(),
                  GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glEnableVertexAttribArray(0);
+
+    // --- Texture coordinates ---
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_texcoords);
+    glBufferData(GL_ARRAY_BUFFER,
+                 mesh.texcoords.size() * sizeof(glm::vec2),
+                 mesh.texcoords.data(),
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+
 
     // Compile shaders
     GLuint vertexShader = createShader(GL_VERTEX_SHADER, vertexShaderSource);
@@ -129,17 +146,26 @@ int main() {
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
         
-        // Send the MVP matrix to the shader
+        // Bind texture
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, mesh.diffuseTex);
+
+        // Set uniform to use texture unit 0
+        GLint texLoc = glGetUniformLocation(shaderProgram, "diffuseTex");
+        glUniform1i(texLoc, 0);
+
+        // Set the MVP uniform
         glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, &mvp[0][0]);
-        
-        // Draw your cube
+
+        // Draw
         glDrawArrays(GL_TRIANGLES, 0, mesh.positions.size());
         SDL_GL_SwapWindow(window);
     }
 
     glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-
+    glDeleteBuffers(1, &VBO_positions);
+    glDeleteBuffers(1, &VBO_texcoords);
+    
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();

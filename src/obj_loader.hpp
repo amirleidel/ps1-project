@@ -154,12 +154,12 @@ GLuint LoadTextureFromFile(const std::string& baseDir, const std::string& fileNa
     glGenerateMipmap(GL_TEXTURE_2D);
 
     // Set filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // Set wrapping
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     stbi_image_free(data);
     return textureID;
@@ -279,7 +279,7 @@ Mesh LoadOBJ(const std::string& path)
     std::cout << mesh.material.diffuseTexPath << "\n";
     mesh.diffuseTex = LoadTextureFromFile("assets/", mesh.material.diffuseTexPath);
         
-    /* check for an error during the load process */
+    /* check for an error during the load process */ 
     if (mesh.diffuseTex == 0) {
         std::cerr << "Failed to load diffuse texture!\n";
     } else {
@@ -291,7 +291,7 @@ Mesh LoadOBJ(const std::string& path)
     } else {
         std::cerr << "Diffuse texture is not valid!\n";
     }
-
+    
     }
     /*
     std::cout << "Loaded OBJ: " << path << "\n";
