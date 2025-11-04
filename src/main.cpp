@@ -1,6 +1,5 @@
 #define SDL_MAIN_HANDLED
 
-
 #include <SDL2/SDL.h>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -44,7 +43,7 @@ int main() {
 
     float width = 800, height = 600; // window format
     
-    SDL_Window* window = SDL_CreateWindow("OpenGL Triangle",
+    SDL_Window* window = SDL_CreateWindow("OpenGL PSX-Project",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
@@ -73,8 +72,13 @@ int main() {
     
     
     // obj import test
-    Mesh mesh = LoadOBJ("assets/cube.obj");
-
+    Mesh mesh = LoadOBJ("assets/cube-tex.obj");
+    
+    //std::vector<Material> materials = LoadMTL("assets/cube.mtl"); this is done in obj loader
+    
+    glBindTexture(GL_TEXTURE_2D, mesh.diffuseTex);
+    
+    
     // Create VAO and VBO for mesh
     GLuint VBO, VAO;
     glGenVertexArrays(1, &VAO);
