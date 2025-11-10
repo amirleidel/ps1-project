@@ -58,40 +58,37 @@ int main() {
     // cam init test 
     // Projection matrix: 45° Field of View, 4:3 ratio, display range: 0.1 unit <-> 100 units
     glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float) width / (float)height, 0.1f, 100.0f);
-
     // Camera matrix
     glm::mat4 View = glm::lookAt(
-        glm::vec3(4,3,3), // Camera is at (4,3,3), in World Space
+        glm::vec3(4,4,3), // Camera is at (4,3,3), in World Space xz is horiz y up
         glm::vec3(0,0,0), // and looks at the origin
         glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
         );
-    // Model matrix: an identity matrix (model will be at the origin)
-    glm::mat4 Model = glm::mat4(1.0f);
-    // Our ModelViewProjection: multiplication of our 3 matrices
-    glm::mat4 mvp = Projection * View * Model; // Remember, matrix multiplication is the other way around
     
     
-    // obj import test
+    // array of Meshes
+    
+    std::vector<Mesh> sceneMeshes;
+    
+    
+    
+    // ============ obj import test (1) ============
     Mesh mesh = LoadOBJ("assets/cube-tex.obj");
     
-    //std::vector<Material> materials = LoadMTL("assets/cube.mtl"); this is done in obj loader
+    // set pos argument (frm lvl file later)
+    mesh.model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -1.0f));
     
-    // mesh.positions holds vertices of model
-    // mesh.diffuseTex holds the gl texture
-    // mesh.texcoords the vec2 texture coords
-    
-    // LoadOBJ already binds texture
+    // LoadOBJ already converts to gl texture
     
     // Create VAO and VBO for mesh
-    GLuint VBO_positions, VBO_texcoords, VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO_positions);
-    glGenBuffers(1, &VBO_texcoords);
+    glGenVertexArrays(1, &mesh.VAO);
+    glGenBuffers(1, &mesh.VBO_positions);
+    glGenBuffers(1, &mesh.VBO_texcoords);
 
-    glBindVertexArray(VAO);
+    glBindVertexArray(mesh.VAO);
 
-    // --- Positions ---
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
+    // --- Positions --- 
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO_positions);
     glBufferData(GL_ARRAY_BUFFER,
                  mesh.positions.size() * sizeof(glm::vec3),
                  mesh.positions.data(),
@@ -100,17 +97,56 @@ int main() {
     glEnableVertexAttribArray(0);
 
     // --- Texture coordinates ---
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_texcoords);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO_texcoords);
     glBufferData(GL_ARRAY_BUFFER,
                  mesh.texcoords.size() * sizeof(glm::vec2),
                  mesh.texcoords.data(),
                  GL_STATIC_DRAW);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glEnableVertexAttribArray(1);
+    
+    sceneMeshes.push_back(mesh); // add to list of meshes
+    
+    // ============ obj import test (2) ============
+    mesh = LoadOBJ("assets/cube-tex-colored.obj");
+    
+    // set pos argument (frm lvl file later)
+    mesh.model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    
+    // LoadOBJ already converts to gl texture
+    
+    // Create VAO and VBO for mesh
+    glGenVertexArrays(1, &mesh.VAO);
+    glGenBuffers(1, &mesh.VBO_positions);
+    glGenBuffers(1, &mesh.VBO_texcoords);
 
+    glBindVertexArray(mesh.VAO);
+
+    // --- Positions --- 
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO_positions);
+    glBufferData(GL_ARRAY_BUFFER,
+                 mesh.positions.size() * sizeof(glm::vec3),
+                 mesh.positions.data(),
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // --- Texture coordinates ---
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO_texcoords);
+    glBufferData(GL_ARRAY_BUFFER,
+                 mesh.texcoords.size() * sizeof(glm::vec2),
+                 mesh.texcoords.data(),
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glEnableVertexAttribArray(1);
+    
+    sceneMeshes.push_back(mesh); // add to list of meshes
+    
+    // ================================
+    // unbind 
     glBindVertexArray(0);
-
-
+    
+    
     // Compile shaders
     GLuint vertexShader = createShader(GL_VERTEX_SHADER, vertexShaderSource);
     GLuint fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
@@ -144,27 +180,29 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
         
         // Bind texture
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, mesh.diffuseTex);
-
+        
         // Set uniform to use texture unit 0
         GLint texLoc = glGetUniformLocation(shaderProgram, "diffuseTex");
         glUniform1i(texLoc, 0);
+        
+        for (auto& mesh : sceneMeshes) {
+            glm::mat4 mvp = Projection * View * mesh.model; // take view from player object
 
-        // Set the MVP uniform
-        glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, &mvp[0][0]);
-
-        // Draw
-        glDrawArrays(GL_TRIANGLES, 0, mesh.positions.size());
+            glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, &mvp[0][0]);
+            glBindTexture(GL_TEXTURE_2D, mesh.diffuseTex);
+            glBindVertexArray(mesh.VAO);
+            glDrawArrays(GL_TRIANGLES, 0, mesh.positions.size());
+        }
+        
         SDL_GL_SwapWindow(window);
     }
 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO_positions);
-    glDeleteBuffers(1, &VBO_texcoords);
+    glDeleteVertexArrays(1, &mesh.VAO);
+    glDeleteBuffers(1, &mesh.VBO_positions);
+    glDeleteBuffers(1, &mesh.VBO_texcoords);
     
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(window);

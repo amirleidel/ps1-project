@@ -39,9 +39,9 @@ struct Material {
     std::string normalMapPath;
     std::string specularMapPath;
 
-    unsigned int diffuseTexID = 0;
-    unsigned int normalMapID = 0;
-    unsigned int specularTexID = 0;
+    //unsigned int diffuseTexID = 0;
+    //unsigned int normalMapID = 0;
+    //unsigned int specularTexID = 0;
 };
 
 // Mesh with associated material and texture
@@ -60,6 +60,12 @@ struct Mesh {
     GLuint diffuseTex = 0;   
     GLuint specularTex = 0;
     GLuint normalTex = 0;
+    
+    // Rendering props
+    GLuint VAO, VBO_positions, VBO_texcoords;
+    size_t vertexCount;
+    glm::mat4 model; //model matrix
+    
 };
 
 // Load a simple OBJ file (no materials)
@@ -132,8 +138,10 @@ std::vector<Material> LoadMTL(const std::string& path)
 
 GLuint LoadTextureFromFile(const std::string& baseDir, const std::string& fileName)
 {
+    stbi_set_flip_vertically_on_load(true); // flip v coord for opengl
+    
     std::string fullPath = baseDir + fileName;
-
+    
     int width, height, channels;
     // Load image with stb_image
     unsigned char* data = stbi_load(fullPath.c_str(), &width, &height, &channels, 4); // force 4 channels RGBA
