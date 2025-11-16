@@ -69,7 +69,7 @@ struct Mesh {
 };
 
 // Load a simple OBJ file (no materials)
-Mesh LoadOBJ(const std::string& path);
+Mesh LoadOBJ(const std::string path);
 // Load mtl file
 std::vector<Material> LoadMTL(const std::string& path);
 
@@ -173,7 +173,7 @@ GLuint LoadTextureFromFile(const std::string& baseDir, const std::string& fileNa
     return textureID;
 }
 
-Mesh LoadOBJ(const std::string& path)
+Mesh LoadOBJ(const std::string path)
 {
     Mesh mesh;
 

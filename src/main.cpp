@@ -7,9 +7,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 
-#include "fileloader.hpp" // loadFile to string implementation
+#include "file_loader.hpp" // loadFile to string implementation
 #include "obj_loader.hpp"
-
+#include "game_objects.hpp"
+#include "camera.hpp"
 
 // Load shader code from files
 std::string vertexCode = loadFile("shaders/vertex_shader.glsl");
@@ -35,7 +36,9 @@ GLuint createShader(GLenum type, const char* src) {
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
-
+    
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    
     // Set OpenGL version to 3.3 core
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -59,88 +62,48 @@ int main() {
     // Projection matrix: 45° Field of View, 4:3 ratio, display range: 0.1 unit <-> 100 units
     glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float) width / (float)height, 0.1f, 100.0f);
     // Camera matrix
-    glm::mat4 View = glm::lookAt(
-        glm::vec3(4,4,3), // Camera is at (4,3,3), in World Space xz is horiz y up
-        glm::vec3(0,0,0), // and looks at the origin
-        glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
-        );
+    //glm::mat4 View = glm::lookAt(
+    //    glm::vec3(4,4,3), // Camera is at (4,3,3), in World Space xz is horiz y up
+    //    glm::vec3(0,0,0), // and looks at the origin
+    //    glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+    //    );
     
     
     // array of Meshes
     
-    std::vector<Mesh> sceneMeshes;
-    
-    
+    //std::vector<Mesh> sceneMeshes;
+    std::vector<GameObject> sceneObjects;
     
     // ============ obj import test (1) ============
     Mesh mesh = LoadOBJ("assets/cube-tex.obj");
     
-    // set pos argument (frm lvl file later)
-    mesh.model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -1.0f));
+    GameObject Cube1;
     
-    // LoadOBJ already converts to gl texture
+    Cube1.position = glm::vec3(-1.0f, 0.0f, -1.0f);
+    Cube1.addMesh(mesh);
+    Cube1.sendMesh();
     
-    // Create VAO and VBO for mesh
-    glGenVertexArrays(1, &mesh.VAO);
-    glGenBuffers(1, &mesh.VBO_positions);
-    glGenBuffers(1, &mesh.VBO_texcoords);
-
-    glBindVertexArray(mesh.VAO);
-
-    // --- Positions --- 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO_positions);
-    glBufferData(GL_ARRAY_BUFFER,
-                 mesh.positions.size() * sizeof(glm::vec3),
-                 mesh.positions.data(),
-                 GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // --- Texture coordinates ---
-    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO_texcoords);
-    glBufferData(GL_ARRAY_BUFFER,
-                 mesh.texcoords.size() * sizeof(glm::vec2),
-                 mesh.texcoords.data(),
-                 GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    glEnableVertexAttribArray(1);
+    sceneObjects.push_back(Cube1); // add to list of meshes
     
-    sceneMeshes.push_back(mesh); // add to list of meshes
+    // ============ obj import test (1.5) ============
+    GameObject Cube2;
+    
+    Cube2.position = glm::vec3(-1.0f, 0.0f, 1.0f);
+    Cube2.addMesh(mesh);
+    Cube2.sendMesh();
+    
+    sceneObjects.push_back(Cube2); // add to list of meshes
     
     // ============ obj import test (2) ============
-    mesh = LoadOBJ("assets/cube-tex-colored.obj");
+    Mesh colormesh = LoadOBJ("assets/cube-tex-colored.obj");
     
-    // set pos argument (frm lvl file later)
-    mesh.model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    GameObject Cube3;
     
-    // LoadOBJ already converts to gl texture
+    Cube3.position = glm::vec3(0.0f, 0.0f, 0.0f);
+    Cube3.addMesh(colormesh);
+    Cube3.sendMesh();
     
-    // Create VAO and VBO for mesh
-    glGenVertexArrays(1, &mesh.VAO);
-    glGenBuffers(1, &mesh.VBO_positions);
-    glGenBuffers(1, &mesh.VBO_texcoords);
-
-    glBindVertexArray(mesh.VAO);
-
-    // --- Positions --- 
-    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO_positions);
-    glBufferData(GL_ARRAY_BUFFER,
-                 mesh.positions.size() * sizeof(glm::vec3),
-                 mesh.positions.data(),
-                 GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // --- Texture coordinates ---
-    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO_texcoords);
-    glBufferData(GL_ARRAY_BUFFER,
-                 mesh.texcoords.size() * sizeof(glm::vec2),
-                 mesh.texcoords.data(),
-                 GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    glEnableVertexAttribArray(1);
-    
-    sceneMeshes.push_back(mesh); // add to list of meshes
+    sceneObjects.push_back(Cube3); // add to list of meshes
     
     // ================================
     // unbind 
@@ -167,15 +130,30 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     
     
+    Camera camera;    // global or member
+    Uint64 NOW = SDL_GetPerformanceCounter();
+    Uint64 LAST = 0;
+    float dt = 0;
+    
+    
     // Render loop
     bool running = true;
     SDL_Event event;
     while (running) {
+        
+        LAST = NOW;
+        NOW = SDL_GetPerformanceCounter();
+        dt = (float)((NOW - LAST) / (double)SDL_GetPerformanceFrequency());
+        
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 running = false;
+            
+            handleMouse(camera, event);
         }
-
+        handleKeyboard(camera, dt);
+        
+        
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
@@ -184,17 +162,19 @@ int main() {
         // Bind texture
         glActiveTexture(GL_TEXTURE0);
         
-        // Set uniform to use texture unit 0
+        // Set uniform to use texture unit 
         GLint texLoc = glGetUniformLocation(shaderProgram, "diffuseTex");
         glUniform1i(texLoc, 0);
         
-        for (auto& mesh : sceneMeshes) {
-            glm::mat4 mvp = Projection * View * mesh.model; // take view from player object
-
+        for (auto& gameObject : sceneObjects) {
+            glm::mat4 View = getViewMatrix(camera);
+            
+            glm::mat4 mvp = Projection * View * gameObject.mesh.model; // take view from player object
+            
             glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, &mvp[0][0]);
-            glBindTexture(GL_TEXTURE_2D, mesh.diffuseTex);
-            glBindVertexArray(mesh.VAO);
-            glDrawArrays(GL_TRIANGLES, 0, mesh.positions.size());
+            glBindTexture(GL_TEXTURE_2D, gameObject.mesh.diffuseTex);
+            glBindVertexArray(gameObject.mesh.VAO);
+            glDrawArrays(GL_TRIANGLES, 0, gameObject.mesh.positions.size());
         }
         
         SDL_GL_SwapWindow(window);
