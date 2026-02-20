@@ -1,3 +1,17 @@
+# C++ Graphics Engine 
+
+Test render using simple models. 3 objects from 2 different types.
+
+<img src="./opengl-screenshot.png" alt="Lumi RPN main view" style="width: 20em;">
+
+The demo also support movement using WASD, Shift, Space:
+```
+      .-----.                               .--------.
+      |  W  |              forward          |  /\    |        down / up
+.-----+-----+-----.                         '--------'   .-------------------.
+|  A  |  S  |  D  |  left/backward/right                 |       Space       |
+'-----+-----+-----'                                      '-------------------'
+```
 # Quick Setup
 ## SDL2 + OpenGL 3.3 Project Setup (Windows, Standalone MinGW-w64)
 
