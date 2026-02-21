@@ -4,7 +4,7 @@ Test render using simple models. 3 objects from 2 different types.
 
 <img src="./opengl-screenshot.png" alt="Lumi RPN main view" style="width: 20em;">
 
-The demo also support movement using WASD, Shift, Space:
+The demo also supports movement using WASD, Shift, Space:
 ```
       .-----.                               .--------.
       |  W  |              forward          |  /\    |        down / up
